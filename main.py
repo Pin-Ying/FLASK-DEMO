@@ -29,7 +29,7 @@ today = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 @app.route("/")
 def index():
-    name = "PinLing"
+    name = ""
     # return f"<h1>Hello Flask!</h1><h2>Hi Flask!</h2><h3>How are you Flask?</h3><h4>Flask {today}!</h4>"
     return render_template("index.html", date=today, name=name)
 
