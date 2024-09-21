@@ -10,10 +10,17 @@
             text-align: center;
         }
 
-        #main {
+        #main,
+        #six-county {
             display: inline-block;
             width: 1024px;
             height: 600px;
+        }
+
+        .record {
+            background-color: antiquewhite;
+            width: 500px;
+
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -21,10 +28,36 @@
 </head>
 
 <body>
+    <div class="record">
+        最高:
+        <span id="highestSite"></span>
+    </div>
+    <div class="record">
+        最高數值:
+        <span id="highestPm25"></span>
+    </div>
+    <div class="record">
+        最低:
+        <span id="lowestSite"></span>
+    </div>
+    <div class="record">
+        最低數值:
+        <span id="lowestPm25"></span>
+    </div>
+
     <h1>PM2.5圖形繪製</h1>
 
     <div id="main"></div>
+    <div id="six-county"></div>
     <script>
+
+        const chart1 = echarts.init(document.getElementById('main'));
+        const chart2 = echarts.init(document.getElementById('six-county'));
+
+        window.addEventListener("resize", () => {
+            chart1.resize();
+            chart2.resize();
+        });
 
         $.ajax(
             {
@@ -33,15 +66,29 @@
                 dataType: "json",
                 success: (data) => {
                     console.log(data);
-                    drawChart(myChart, data['site'], data['pm25'], "各縣市PM2.5濃度", "pm2.5濃度")
+                    drawChart(chart1, data['site'], data['pm25'], "各縣市PM2.5濃度", "pm2.5濃度", "#55a7e5")
+                    $("#highestSite").text(data['highest'][0]);
+                    $("#highestPm25").text(data['highest'][1]);
+                    $("#lowestSite").text(data['lowest'][0]);
+                    $("#lowestPm25").text(data['lowest'][1]);
+                }
+            }
+        );
+
+        $.ajax(
+            {
+                url: "/six-pm25",
+                type: "GET",
+                dataType: "json",
+                success: (data) => {
+                    console.log(data);
+                    drawChart(chart2, data['site'], data['pm25'], "六都平均PM2.5濃度", "pm2.5濃度", "#e5a755")
 
                 }
             }
         );
 
-        var myChart = echarts.init(document.getElementById('main'));
-
-        function drawChart(chart, xdata, ydata, title = "Chart Title", name = "數值") {
+        function drawChart(chart, xdata, ydata, title = "Chart Title", name = "數值", color = "blue") {
             var option = {
                 title: {
                     text: title
@@ -58,7 +105,10 @@
                     {
                         name: name,
                         type: 'bar',
-                        data: ydata
+                        data: ydata,
+                        itemStyle: {
+                            color: color
+                        }
                     }
                 ]
             };
